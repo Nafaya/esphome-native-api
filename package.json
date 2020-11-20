@@ -1,0 +1,31 @@
+{
+  "name": "esphome-native-api",
+  "version": "1.0.0",
+  "description": "esphome native api client",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nafaya/esphome-native-api.git"
+  },
+  "keywords": [
+    "esphome",
+    "native-api",
+    "esphome",
+    "client"
+  ],
+  "author": "Nafaya",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/Nafaya/esphome-native-api/issues"
+  },
+  "homepage": "https://github.com/Nafaya/esphome-native-api#readme",
+  "dependencies": {
+    "eslint": "^7.13.0",
+    "events": "^3.2.0",
+    "google-protobuf": "^3.14.0",
+    "net": "^1.0.2"
+  }
+}
