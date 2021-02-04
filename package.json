@@ -1,6 +1,6 @@
 {
   "name": "esphome-native-api",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "esphome native api client",
   "main": "index.js",
   "scripts": {
