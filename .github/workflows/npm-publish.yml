@@ -1,37 +1,61 @@
 # This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
 # For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
 
-name: Node.js Package
+name: Publish npm package 
 
 on:
   release:
     types: [ created ]
-  push:
-    branches: [ main ]
 
 jobs:
-  build:
+  test:
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Cache node_modules
+        id: cache-modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: cache-node_modules-${{ runner.OS }}-${{ hashFiles('package*.json') }}
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - run: npm ci
+      - name: Build
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+      - run: npm test
 
   publish-npm:
-    needs: build
+    name: Publish
+    needs: test
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && ( github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' )
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - name: Cache node_modules
+        id: cache-modules
+        uses: actions/cache@v1
         with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm publish
+          path: node_modules
+          key: cache-node_modules-${{ runner.OS }}-${{ hashFiles('package*.json') }}
+      - name: Build
+        if: steps.cache-modules.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Publish
+        uses: mikeal/merge-release@master
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - uses: actions/setup-node@v1
+      #   with:
+      #     node-version: 12
+      #     registry-url: https://registry.npmjs.org/
+      # - run: npm install
+      # - run: npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
 
   # publish-gpr:
   #   needs: build
