@@ -1,3 +1,6 @@
+![Publish](https://github.com/Nafaya/esphome-native-api/workflows/Publish%20npm%20package/badge.svg)
+![Test](https://github.com/Nafaya/esphome-native-api/workflows/Test/badge.svg?branch=main)
+
 # Esphome native api
 This library implements client for [Esphome Native APi](https://esphome.io/components/api.html).
 
