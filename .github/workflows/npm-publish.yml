@@ -19,9 +19,6 @@ jobs:
         with:
           path: node_modules
           key: cache-node_modules-${{ runner.OS }}-${{ hashFiles('package*.json') }}
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
       - name: Build
         if: steps.cache-modules.outputs.cache-hit != 'true'
         run: npm ci
