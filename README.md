@@ -30,6 +30,41 @@ client.on('newEntity', entity => {
 });
 ```
 
+### Discovery
+```javascript
+const { Discovery } = require('esphome-native-api');
+Discovery().then(results => {
+    console.log(results);
+    /*
+    [
+        {
+        mac: '240ac45eebd4',
+        host: 'esp32_binary_fan.local',
+        version: '1.16.1',
+        address: '192.168.0.144',
+        family: 'IPv4'
+        }
+    ]
+    */
+});
+```
+
+```javascript
+const { Discovery } = require('esphome-native-api');
+const discovery = new Discovery();
+discovery.on('info', console.log);
+/*
+{
+    mac: '240ac45eebd4',
+    host: 'esp32_binary_fan.local',
+    version: '1.16.1',
+    address: '192.168.0.144',
+    family: 'IPv4'
+}
+*/
+discovery.run();
+```
+
 ### Logging
 ```javascript
 const { Client } = require('esphome-native-api');
@@ -43,6 +78,32 @@ client.on('logs', ({ message }) => {
 });
 ```
 ## Documantation
+
+### Discovery
+
+```
+const { Discovery } = require('esphome-native-api');
+const discovery = new Discovery(options);
+```
+`options` - optional
+    `multicast` - optional. Default - `true`. Use udp multicasting
+    `interface` - optional. Explicitly specify a network interface.  defaults to all
+    `port` - optional. Default - `5353`. Set the udp port
+    `ip` - optional. Default - `224.0.0.251`. Set the udp ip
+    `ttl` - optional. Default - `255`. Set the multicast ttl
+    `loopback` - optional. Default - `true`. Receive your own packets
+    `reuseAddr` - optional. Default - `true`. Set the reuseAddr option when creating the socket (requires node >=0.11.13)
+    
+```
+
+const { Discovery } = require('esphome-native-api');
+Discovery(options).then(console.log)
+```
+`options` - optional
+    `timeout` - optional. Default - `5`. Time in seconds how long to wait for responses
+    `*` - all options above
+
+
 
 ### Client
 More frienly layer over the [Connection](#Connection)
@@ -197,6 +258,20 @@ Params:
     - `away` - optional. Boolean
     - `fanMode` - optional. 0 - ON, 1 - OFF, 2 - AUTO, 3 - LOW, 4 - MEDIUM, 5 - HIGH, 6 - MIDDLE, 7 - FOCUS, 8 - DIFFUSE. See `supported_fan_modes` attr in config
     - `swingMode` - optional. 0 - OFF, 1 - BOTH, 2 - VERTICAL, 3 - HORIZONTAL. See `supported_swing_modes` attr in config
+
+#### Connection events
+- `message.<type>` - when valid message from esphome device is received. First arg is message. The event is called before `message` event(more genetal analogue)
+- `message` - when valid message from esphome device is received. First arg is type, second is message.
+- `socketConnected` - emmited when socket is connected
+- `socketDisconnected` - emmited when socket is disconnected
+- `connected` - emmited if client is introduced to esphome device
+- `disconnected` - emmited if session is corruptred
+- `authorized` - emmited if client is logged in esphome device
+- `unauthorized` - emmited if session is corruptred
+- `data` - when any data is received
+- `error` - when any error is occured
+- `unhandledData` - when data is received, but an error occured and we have unprocessed data
+
 
 #### Connection events
 - `message.<type>` - when valid message from esphome device is received. First arg is message. The event is called before `message` event(more genetal analogue)
