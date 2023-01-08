@@ -283,7 +283,6 @@ const connection = new Connection({
 - `reconnecting`
 - `disconnecting`
 - `connect()` - do connection try
-- `connect()` - do connection try
 - `disconnect()` - close connection
 - `async deviceInfoService()` - subsribes to entities state changes. Returns device info object
 - `async getTimeService()` - subsribes to entities state changes. Returns time object
