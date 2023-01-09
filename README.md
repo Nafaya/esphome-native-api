@@ -207,7 +207,7 @@ Params:
     - `speed` - optional. 0 - LOW, 1 - MEDIUM, 2 - HIGH
     - `oscillating` - optional. boolean
     - `direction` - optional. 0 - FORWARD, 1 - REVERSE
-    - `speedLevel` - optional. integer. See `supportedSpeedCount` attr in config
+    - `speedLevel` - optional. integer. See `supportedSpeedLevels` attr in config
 #### Light
 - `static commandService(connection, { key, state, brightness, red, green, blue, colorMode, colorBrightness, white, colorTemperature, coldWhite, warmWhite, transitionLength, flashLength, effect })` - sends command to light entity.
 Params:
@@ -226,10 +226,11 @@ Params:
     - `flashLength` - optional. integer
     - `effect` - optional. string. effect from effects array in config list
 #### Lock
-- `static commandService(connection, { key, command }` - sends command to lock entity.
+- `static commandService(connection, { key, command, code }` - sends command to lock entity.
 Params:
     - `key` - REQUIRED. key/id of entity
     - `command` - REQUIRED. 0 - UNLOCK, 1 - LOCK, 2 - OPEN
+    - `code` - optional. string. See `requiresCode` attr in config
 #### Number
 - `static commandService(connection, { key, state })` - sends command to number entity.
 Params:
@@ -242,6 +243,14 @@ Params:
     - `state` - REQUIRED. string. See `optionsList` attr in config
 #### Sensor
 Only base functionality
+#### Siren
+- `static commandService(connection, { key, state, tone, duration, volume })` - sends command to siren entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - REQUIRED. boolean
+    - `tone` - optional. string. See `tonesList` attr in config
+    - `duration` - optional. integer. See `supportsDuration` attr in config
+    - `volume` - optional. integer. See `supportsVolume` attr in config
 #### Switch
 - `static commandService(connection, { key, state })` - sends command to switch entity.
 Params:
@@ -303,6 +312,7 @@ const connection = new Connection({
     - `lockCommandService(data)`
     - `numberCommandService(data)`
     - `selectCommandService(data)`
+    - `sirenCommandService(data)`
     - `switchCommandService(data)`
 
 #### Connection events
