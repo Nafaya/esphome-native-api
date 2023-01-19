@@ -17,6 +17,9 @@ const client = new Client({
     host: '<esp host or ip>',
     port: 6053
 });
+
+client.connect();
+
 client.on('deviceInfo', deviceInfo => {
     console.log('Device info:', deviceInfo);
 });
