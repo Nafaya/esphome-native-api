@@ -15,7 +15,8 @@ $ npm i esphome-native-api
 const { Client } = require('esphome-native-api');
 const client = new Client({
     host: '<esp host or ip>',
-    port: 6053
+    port: 6053,
+    // password: '', // Insert password if you have any
 });
 
 client.connect();
@@ -27,7 +28,7 @@ client.on('newEntity', entity => {
     console.log('New entity:', entity);
 
     // enable light
-    if (entity.name === 'Light') {
+    if (entity.type === 'Light') {
         entity.setState(true);
     }
 });
