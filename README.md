@@ -210,7 +210,7 @@ Params:
     - `speed` - optional. 0 - LOW, 1 - MEDIUM, 2 - HIGH
     - `oscillating` - optional. boolean
     - `direction` - optional. 0 - FORWARD, 1 - REVERSE
-    - `speedLevel` - optional. integer. See `supportedSpeedCount` attr in config
+    - `speedLevel` - optional. integer. See `supportedSpeedLevels` attr in config
 #### Light
 - `static commandService(connection, { key, state, brightness, red, green, blue, colorMode, colorBrightness, white, colorTemperature, coldWhite, warmWhite, transitionLength, flashLength, effect })` - sends command to light entity.
 Params:
@@ -229,10 +229,11 @@ Params:
     - `flashLength` - optional. integer
     - `effect` - optional. string. effect from effects array in config list
 #### Lock
-- `static commandService(connection, { key, command }` - sends command to lock entity.
+- `static commandService(connection, { key, command, code }` - sends command to lock entity.
 Params:
     - `key` - REQUIRED. key/id of entity
     - `command` - REQUIRED. 0 - UNLOCK, 1 - LOCK, 2 - OPEN
+    - `code` - optional. string. See `requiresCode` attr in config
 #### Number
 - `static commandService(connection, { key, state })` - sends command to number entity.
 Params:
@@ -245,6 +246,14 @@ Params:
     - `state` - REQUIRED. string. See `optionsList` attr in config
 #### Sensor
 Only base functionality
+#### Siren
+- `static commandService(connection, { key, state, tone, duration, volume })` - sends command to siren entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - REQUIRED. boolean
+    - `tone` - optional. string. See `tonesList` attr in config
+    - `duration` - optional. integer. See `supportsDuration` attr in config
+    - `volume` - optional. integer. See `supportsVolume` attr in config
 #### Switch
 - `static commandService(connection, { key, state })` - sends command to switch entity.
 Params:
@@ -286,7 +295,6 @@ const connection = new Connection({
 - `reconnecting`
 - `disconnecting`
 - `connect()` - do connection try
-- `connect()` - do connection try
 - `disconnect()` - close connection
 - `async deviceInfoService()` - subsribes to entities state changes. Returns device info object
 - `async getTimeService()` - subsribes to entities state changes. Returns time object
@@ -307,21 +315,8 @@ const connection = new Connection({
     - `lockCommandService(data)`
     - `numberCommandService(data)`
     - `selectCommandService(data)`
+    - `sirenCommandService(data)`
     - `switchCommandService(data)`
-
-#### Connection events
-- `message.<type>` - when valid message from esphome device is received. First arg is message. The event is called before `message` event(more genetal analogue)
-- `message` - when valid message from esphome device is received. First arg is type, second is message.
-- `socketConnected` - emmited when socket is connected
-- `socketDisconnected` - emmited when socket is disconnected
-- `connected` - emmited if client is introduced to esphome device
-- `disconnected` - emmited if session is corruptred
-- `authorized` - emmited if client is logged in esphome device
-- `unauthorized` - emmited if session is corruptred
-- `data` - when any data is received
-- `error` - when any error is occured
-- `unhandledData` - when data is received, but an error occured and we have unprocessed data
-
 
 #### Connection events
 - `message.<type>` - when valid message from esphome device is received. First arg is message. The event is called before `message` event(more genetal analogue)
