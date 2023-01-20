@@ -15,8 +15,12 @@ $ npm i esphome-native-api
 const { Client } = require('esphome-native-api');
 const client = new Client({
     host: '<esp host or ip>',
-    port: 6053
+    port: 6053,
+    // password: '', // Insert password if you have any
 });
+
+client.connect();
+
 client.on('deviceInfo', deviceInfo => {
     console.log('Device info:', deviceInfo);
 });
@@ -24,7 +28,7 @@ client.on('newEntity', entity => {
     console.log('New entity:', entity);
 
     // enable light
-    if (entity.name === 'Light') {
+    if (entity.type === 'Light') {
         entity.setState(true);
     }
 });
@@ -93,7 +97,7 @@ const discovery = new Discovery(options);
     `ttl` - optional. Default - `255`. Set the multicast ttl
     `loopback` - optional. Default - `true`. Receive your own packets
     `reuseAddr` - optional. Default - `true`. Set the reuseAddr option when creating the socket (requires node >=0.11.13)
-    
+
 ```
 
 const { Discovery } = require('esphome-native-api');
@@ -161,24 +165,101 @@ const client = new Client({
 
 ### Entities
 Each entity class defines individual interaction with esphome components.
-All entities have 
-- `config`attrubute - entity configuration receved from esphome
+All entities have
+- `config` attrubute - entity configuration receved from esphome
 - `state` event when new state is received
 - `state` attribute
 - `destroyed` event which is called when corresponfing client is no longer connection to this entity(See `clearSession` option) and
+- `type` attribute equal to component type
 - `name` attribute equal to name of entity
 
 
 #### Binary sensor
 Only base functionality
+#### Button
+- `static commandService(connection, { key })`
+Params:
+    - `key` - REQUIRED. key/id of entity
 #### Camera
 #### Climate
+- `static commandService(connection, { key, mode, targetTemperature, targetTemperatureLow, targetTemperatureHigh, away, fanMode, swingMode })` - sends command to climate entity
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `mode` - optional. 0 - OFF, 1 - AUTO, 2 - COOL, 3 - HEAT, 4 - FAN_ONLY, 5 - DRY.  See `supportedModesList` attr in config
+    - `targetTemperature`- optional. float
+    - `targetTemperatureLow`- optional. float
+    - `targetTemperatureHigh`- optional. float
+    - `legacyAway` - optional. Boolean. Deprecated: use `preset` with AWAY
+    - `fanMode` - optional. 0 - ON, 1 - OFF, 2 - AUTO, 3 - LOW, 4 - MEDIUM, 5 - HIGH, 6 - MIDDLE, 7 - FOCUS, 8 - DIFFUSE. See `supportedFanModesList` attr in config
+    - `swingMode` - optional. 0 - OFF, 1 - BOTH, 2 - VERTICAL, 3 - HORIZONTAL. See `supportedSwingModesList` attr in config
+    - `customFanMode` - optional. string. See `supportedCustomFanModesList` attr in config
+    - `preset` - optional. 0 - NONE, 1 - HOME, 2 - AWAY, 3 - BOOST, 4 - COMFORT, 5 - ECO, 6 - SLEEP, 7 - ACTIVITY. See `supportedPresetsList` attr in config
+    - `customPreset` - optional. string. See `supportedCustomPresetsList` attr in config
 #### Cover
+- `static commandService(connection, { key, legacyCommand, position, tilt, stop })` - sends command to cover entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `legacyCommand` - optional. 0 - OPEN, 1 - CLOSE, 2 - STOP. Deprecated: use `position`
+    - `position` - optional. float. 0.0 - CLOSED, 1.0 - OPEN. See `supportsPosition` attr in config
+    - `tilt` - optional. float. 0.0 - CLOSED, 1.0 - OPEN. See `supportsTilt` attr in config
+    - `stop` - optional. boolean
 #### Fan
+- `static commandService(connection, { key, state, speed, oscillating, direction, speedLevel })` - sends command to fan entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - optional. boolean
+    - `speed` - optional. 0 - LOW, 1 - MEDIUM, 2 - HIGH
+    - `oscillating` - optional. boolean
+    - `direction` - optional. 0 - FORWARD, 1 - REVERSE
+    - `speedLevel` - optional. integer. See `supportedSpeedLevels` attr in config
 #### Light
+- `static commandService(connection, { key, state, brightness, red, green, blue, colorMode, colorBrightness, white, colorTemperature, coldWhite, warmWhite, transitionLength, flashLength, effect })` - sends command to light entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - optional. boolean
+    - `brightness` - optional. float
+    - `red` - optional. integer 0-255
+    - `green` - optional. integer 0-255
+    - `blue` - optional. integer 0-255
+    - `colorMode` - optional. integer. See `supportedColorModesList` attr in config
+    - `colorBrightness` - optional. float
+    - `white` - optional. integer 0-255
+    - `colorTemperature` - optional. integer
+    - `coldWhite` - optional. float
+    - `warmWhite` - optional. float
+    - `flashLength` - optional. integer
+    - `effect` - optional. string. effect from effects array in config list
+#### Lock
+- `static commandService(connection, { key, command, code }` - sends command to lock entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `command` - REQUIRED. 0 - UNLOCK, 1 - LOCK, 2 - OPEN
+    - `code` - optional. string. See `requiresCode` attr in config
+#### Number
+- `static commandService(connection, { key, state })` - sends command to number entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - REQUIRED. float. See `minValue`, `maxValue`, and `step` attrs in config
+#### Select
+- `static commandService(connection, { key, state })` - sends command to select entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - REQUIRED. string. See `optionsList` attr in config
 #### Sensor
 Only base functionality
+#### Siren
+- `static commandService(connection, { key, state, tone, duration, volume })` - sends command to siren entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - REQUIRED. boolean
+    - `tone` - optional. string. See `tonesList` attr in config
+    - `duration` - optional. integer. See `supportsDuration` attr in config
+    - `volume` - optional. integer. See `supportsVolume` attr in config
 #### Switch
+- `static commandService(connection, { key, state })` - sends command to switch entity.
+Params:
+    - `key` - REQUIRED. key/id of entity
+    - `state` - REQUIRED. boolean
 #### TestSensor
 Only base functionality
 
@@ -208,70 +289,35 @@ const connection = new Connection({
 - `pingAttempts` - optional. Default - `3`. Number of failed ping attempts after witch connection is considered to be corrupted.
 
 #### Methods and attributes
-- `socketConnected` - `true` if socket is connected but no 
+- `socketConnected` - `true` if socket is connected but no
 - `connected` - `true` if client is introduced to esphome device
 - `authorized` - `true` if client is logged in esphome device
 - `connecting`
 - `reconnecting`
 - `disconnecting`
 - `connect()` - do connection try
-- `connect()` - do connection try
 - `disconnect()` - close connection
 - `async deviceInfoService()` - subsribes to entities state changes. Returns device info object
 - `async getTimeService()` - subsribes to entities state changes. Returns time object
 - `async listEntitiesService()` - subsribes to entities state changes. Returns entities list
-- `async subscribeStatesService()` - subsribes to entities state changes
-- `async subscribeLogsService(level = 3, dumpConfig = false)` - subsribes to logs. Params:
+- `subscribeStatesService()` - subsribes to entities state changes
+- `subscribeLogsService(level = 3, dumpConfig = false)` - subsribes to logs. Params:
     - `level` - logs level. 0 - NONE, 1 - ERROR, 2 - WARN, 3 - INFO, 4 - DEBUG, 5 - DEBUG, 6 - VERBOSE, 7 - VERY_VERBOSE
     - `dumpConfig`
-- `async cameraImageService(single = true, stream = false)` - requests camera image. Params:
+- `cameraImageService(single = true, stream = false)` - requests camera image. Params:
     - `single`
     - `stream`
-- `async coverCommandService({ key, legacyCommand, position, tilt, stop })` - sends command to cover entity. Params:
-    - `key` - REQUIRED. key/id of entity
-    - `legacyCommand` - optional. 0 - OPEN, 1 - CLOSE, 2 - STOP
-    - `position` - optional. integer
-    - `tilt` - optional. integer
-    - `stop` - optional. boolean
-- `async lightCommandService({ key, state, brightness, red, green, blue, white, colorTemperature, transitionLength, flashLength, effect })` - sends command to light entity. Params:
-    - `key` - REQUIRED. key/id of entity
-    - `state` - optional. boolean
-    - `brightness` - optional. integer
-    - `red` - optional. integer 0-255
-    - `green` - optional. integer 0-255
-    - `blue` - optional. integer 0-255
-    - `white` - optional. integer 0-255
-    - `colorTemperature` - optional. integer
-    - `flashLength` - optional. integer
-    - `effect` - optional. effect from effects array in config list
-- `async switchCommandService({ key, state })` - sends command to switch entity
-Params:
-    - `key` - REQUIRED. key/id of entity
-    - `state` - optional. boolean
-- `async climateCommandService({ key, mode, targetTemperature, targetTemperatureLow, targetTemperatureHigh, away, fanMode, swingMode })` - sends command to climate entity
-Params:
-    - `key` - REQUIRED. key/id of entity
-    - `mode` - optional. 0 - OFF, 1 - AUTO, 2 - COOL, 3 - HEAT, 4 - FAN_ONLY, 5 - DRY.  See `supported_modes` attr in config
-    - `targetTemperature`- optional. float
-    - `targetTemperatureLow`- optional. float
-    - `targetTemperatureHigh`- optional. float
-    - `away` - optional. Boolean
-    - `fanMode` - optional. 0 - ON, 1 - OFF, 2 - AUTO, 3 - LOW, 4 - MEDIUM, 5 - HIGH, 6 - MIDDLE, 7 - FOCUS, 8 - DIFFUSE. See `supported_fan_modes` attr in config
-    - `swingMode` - optional. 0 - OFF, 1 - BOTH, 2 - VERTICAL, 3 - HORIZONTAL. See `supported_swing_modes` attr in config
-
-#### Connection events
-- `message.<type>` - when valid message from esphome device is received. First arg is message. The event is called before `message` event(more genetal analogue)
-- `message` - when valid message from esphome device is received. First arg is type, second is message.
-- `socketConnected` - emmited when socket is connected
-- `socketDisconnected` - emmited when socket is disconnected
-- `connected` - emmited if client is introduced to esphome device
-- `disconnected` - emmited if session is corruptred
-- `authorized` - emmited if client is logged in esphome device
-- `unauthorized` - emmited if session is corruptred
-- `data` - when any data is received
-- `error` - when any error is occured
-- `unhandledData` - when data is received, but an error occured and we have unprocessed data
-
+- `<entityType>CommandService(data)` - sends command to the specified entity. See `static commandService` in the Entity classes
+    - `buttonCommandService(data)`
+    - `climateCommandService(data)`
+    - `coverCommandService(data)`
+    - `fanCommandService(data)`
+    - `lightCommandService(data)`
+    - `lockCommandService(data)`
+    - `numberCommandService(data)`
+    - `selectCommandService(data)`
+    - `sirenCommandService(data)`
+    - `switchCommandService(data)`
 
 #### Connection events
 - `message.<type>` - when valid message from esphome device is received. First arg is message. The event is called before `message` event(more genetal analogue)
